@@ -15,7 +15,10 @@ Assignment 2, Question 2
  * @param value The value to be added to the stack.
  */
 void push(Operand **stack, double value){
-
+        Operand *new_node = (Operand *)malloc(sizeof(Operand));
+        new_node->value = value;
+        new_node->next = *stack;
+        *stack = new_node;
 }
 
 
@@ -26,7 +29,12 @@ void push(Operand **stack, double value){
  * @return The value that was at the top of the stack.
  */
 double pop(Operand **stack){
-
+        if (*stack == NULL) return 0; // Empty stack
+        Operand *temp = *stack;
+        double value = temp->value;
+        *stack = temp->next;
+        free(temp);
+        return value;
 }
 
 
@@ -36,5 +44,10 @@ double pop(Operand **stack){
  * @param stack Pointer to the stack's head.
  */
 void print(Operand *stack){
-  
+        Operand *temp = stack;
+        while (temp != NULL) {
+                printf("%lf ", temp->value);
+                temp = temp->next;
+        }
+        printf("\n");
 }
