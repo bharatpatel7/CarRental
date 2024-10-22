@@ -1,7 +1,7 @@
 # CIS2520-F24-A2
 
 ## Student Information 
-Name : Bharatkumar Garsondiya
+Name : 
 
 Student Number : 
 

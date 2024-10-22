@@ -14,7 +14,7 @@ struct car{
 
 
 //Function Definitions
-void prompt();
+void prompt(void);
 struct car * insert_to_list(struct car ** head, char plate[], int mileage, int return_date);
 void print_list(struct car *head);
 bool is_plate_in_list(struct car * head, char plate[]);
@@ -27,3 +27,9 @@ void write_list_to_file(char *filename, struct car *head);
 void read_file_into_list(char *filename, struct car **head);
 void date(int date);
 void free_list(struct car ** head);
+void rent_first_available_car(struct car **available_head, struct car **rented_head);
+
+
+
+
+

@@ -1,8 +1,9 @@
 #include "q1.h"
 
+
 /* function will display the primary user interface
     This is already done for you*/
-void prompt(){
+void prompt(void){
 
   printf("1. Add a new car to the available-for-rent list,\n");
   printf("2. Add a returned car to the available-for-rent list,\n");
@@ -11,7 +12,8 @@ void prompt(){
   printf("5. Rent the first available car,\n");
   printf("6. Print all the lists,\n");
   printf("7. Quit.\n");
-  printf("Enter your choice: ");
+  //printf("Enter your choice: ");
+  //scanf("%d", &choice);
 }
 
 /**
@@ -23,13 +25,34 @@ void prompt(){
  * @return Pointer to the newly added car in the list.
  */
 struct car * insert_to_list(struct car ** head, char plate[], int mileage, int return_date){
-    struct car *new_car = (struct car *)malloc(sizeof(struct car));
+    struct car *new_car = malloc(sizeof(struct car));
     strcpy(new_car->plate, plate);
     new_car->mileage = mileage;
     new_car->return_date = return_date;
+    new_car->next = NULL;
     new_car->next = *head;
     *head = new_car;
     return new_car;
+}
+
+
+void rent_first_available_car(struct car **available_head, struct car **rented_head){
+    if (*available_head == NULL){
+        printf("No car available for rent.\n");
+    }
+
+    struct car *car_to_rent = remove_first_from_list(available_head);
+    if (car_to_rent == NULL){
+        printf("No car available for rent.\n");
+        return;
+    }
+
+    *rented_head = insert_to_list(rented_head, car_to_rent->plate, car_to_rent->mileage, car_to_rent->return_date);
+    printf("Car rented: %s\n", car_to_rent->plate);
+    free(car_to_rent);
+
+
+    
 }
 
 /**
@@ -38,16 +61,17 @@ struct car * insert_to_list(struct car ** head, char plate[], int mileage, int r
  * This function prints out the car details, it should not print return date if it does not exist.
  */
 void print_list(struct car *head){
-        struct car *temp = head;
-    while (temp != NULL) {
-        printf("Plate: %s, Mileage: %d", temp->plate, temp->mileage);
-        if (temp->return_date != -1) {
-            printf(", Return Date: %d", temp->return_date);
+    while (head != NULL)
+    {
+        printf("Plate: %s, Mileage: %d", head->plate, head->mileage);
+        if (head->return_date != -1)
+        {
+            printf(", Return Date: %d", head->return_date);
         }
         printf("\n");
-        temp = temp->next;
+        head = head->next;
     }
-    return;
+    
 }
 
 /**
@@ -57,15 +81,15 @@ void print_list(struct car *head){
  * @return Boolean value indicating if the plate is found.
  */
 bool is_plate_in_list(struct car * head, char plate[]){
-    struct car *temp = head;
-    while (temp != NULL) {
-        if (strcmp(temp->plate, plate) == 0) {
+    while (head != NULL)
+    {
+        if (strcmp(head->plate, plate) == 0)
+        {
             return true;
         }
-        temp = temp->next;
+        head = head->next;
     }
     return false;
-    //return true;
 }
 
 /**
@@ -75,10 +99,23 @@ bool is_plate_in_list(struct car * head, char plate[]){
  * Swaps the plate, mileage, and return date of two cars.
  */
 void swap(struct car *a, struct car *b){
-    struct car temp = *a;
-    *a = *b;
-    *b = temp;
-    //return;
+    char temp_plate[7];
+    int temp_mileage, temp_return_date;
+
+    //swap plates
+    strcpy(temp_plate, a->plate);
+    strcpy(a->plate, b->plate);
+    strcpy(b->plate, temp_plate);
+
+    //swap mileage
+    temp_mileage = a->mileage;
+    a->mileage = b->mileage;
+    b->mileage = temp_mileage;
+
+    //swap return date
+    temp_return_date = a->return_date;
+    a->return_date = b->return_date;
+    b->return_date = temp_return_date;
 }
 
 /**
@@ -88,17 +125,27 @@ void swap(struct car *a, struct car *b){
  * @param sort_by_return_date Boolean to sort by return date.
  */
 void sort_list(struct car ** head, bool sort_by_mileage, bool sort_by_return_date){
-    struct car *i, *j;
-    for (i = *head; i != NULL; i = i->next) {
-        for (j = i->next; j != NULL; j = j->next) {
-            if ((sort_by_mileage && i->mileage > j->mileage) ||
-                (sort_by_return_date && i->return_date > j->return_date)) {
-                swap(i, j);
+    if (*head == NULL || (*head)->next == NULL){
+        return;
+    }
+
+    struct car *current, *index;
+
+    for (current = *head; current->next != NULL; current = current->next)
+    {
+        for (index = current->next; index != NULL; index = index->next)
+        {
+            if (sort_by_mileage)
+            {
+                if (current->mileage > index->mileage)
+                {
+                    swap(current, index);
+                }
             }
         }
     }
-    //return;
 }
+
 
 /**
  * Removes a car from the list by its plate number.
@@ -107,16 +154,23 @@ void sort_list(struct car ** head, bool sort_by_mileage, bool sort_by_return_dat
  * @return Pointer to the removed car.
  */
 struct car * remove_car_from_list(struct car **head, char plate[]){
-    struct car *temp = *head, *prev = NULL;
-    while (temp != NULL && strcmp(temp->plate, plate) != 0) {
-        prev = temp;
-        temp = temp->next;
+    struct car *prev = NULL, *curr = *head;
+    while (curr != NULL && strcmp(curr->plate, plate) != 0)
+    {
+        prev = curr;
+        curr = curr->next;
     }
-    if (temp == NULL) return NULL; // Car not found
-    if (prev == NULL) *head = temp->next; // Car is head
-    else prev->next = temp->next;
-    return temp;
-    //return NULL;
+    if (curr == NULL)
+    {
+        return NULL;
+    }
+    if (prev == NULL)
+    {
+        *head = curr->next;
+    }else{
+        prev->next = curr->next;
+    }
+    return curr;
 }
 
 /**
@@ -125,11 +179,13 @@ struct car * remove_car_from_list(struct car **head, char plate[]){
  * @return Pointer to the removed car.
  */
 struct car * remove_first_from_list(struct car **head){
-    if (*head == NULL) return NULL;
+    if (*head == NULL)
+    {
+        return NULL;
+    }
     struct car *temp = *head;
     *head = (*head)->next;
     return temp;
-    //return NULL;
 }
 
 /**
@@ -139,12 +195,8 @@ struct car * remove_first_from_list(struct car **head){
  * @return Double value representing the calculated profit.
  */
 double profit_calculator(int initial_mileage, int final_mileage){
-    int distance = final_mileage - initial_mileage;
-    if (distance <= 200) {
-        return 80.00;
-    }
-    return 80.00 + 0.15 * (distance - 200);
-    //return 0.00;
+    double rate_per_milage = 0.1;
+    return (final_mileage - initial_mileage) * rate_per_milage;
 }
 
 /**
@@ -156,13 +208,20 @@ double profit_calculator(int initial_mileage, int final_mileage){
  */
 void write_list_to_file(char *filename, struct car *head){
     FILE *file = fopen(filename, "w");
-    struct car *temp = head;
-    while (temp != NULL) {
-        fprintf(file, "%s,%d,%d\n", temp->plate, temp->mileage, temp->return_date);
-        temp = temp->next;
+    if (file == NULL)
+    {
+        printf("Error opening file: %s .\n", filename);
+        return;
+    }
+
+    //struct car *current = head;
+
+    while (head != NULL)
+    {
+        fprintf(file, "%s,%d,%d\n", head->plate, head->mileage, head->return_date);
+        head = head->next;
     }
     fclose(file);
-    //return;
 }
 
 /**
@@ -174,14 +233,17 @@ void write_list_to_file(char *filename, struct car *head){
  */
 void read_file_into_list(char *filename, struct car **head){
     FILE *file = fopen(filename, "r");
-    if (file == NULL) return;
+    if (file == NULL)
+    {
+        printf("Error opening file: %s .\n", filename);
+        return;
+    }
     char plate[7];
     int mileage, return_date;
-    while (fscanf(file, "%6s,%d,%d", plate, &mileage, &return_date) != EOF) {
+    while(fscanf(file, "%6s,%d,%d\n", plate, &mileage, &return_date) == 3){
         insert_to_list(head, plate, mileage, return_date);
     }
     fclose(file);
-    //return;
 }
 
 /**
@@ -189,7 +251,18 @@ void read_file_into_list(char *filename, struct car **head){
  * @param date Integer representing the date in YYMMDD format.
  */
 void date(int date){
-    printf("Date: %d/%d/%d\n", date / 10000, (date / 100) % 100, date % 100);
+    int year = date / 10000;
+    int month = (date % 10000) / 100;
+    int day = date % 100;
+
+    if (year < 0 || month < 1 || month > 12 || day < 1 || day > 31)
+    {
+        printf("Invalid date formate: %d\n", date);
+    }
+    else
+    {
+        printf("Date is Valid: Year: %d, Month: %d, Day: %d\n", year, month, day);
+    }
 }
 
 /**
@@ -197,12 +270,13 @@ void date(int date){
  * @param head Pointer to the head of the list.
  * Frees each car node in the list.
  */
-void free_list(struct car ** head) {
+void free_list(struct car ** head){
     struct car *temp;
-    while (*head != NULL) {
+    while (*head != NULL)
+    {
         temp = *head;
         *head = (*head)->next;
         free(temp);
     }
-    //return;
 }
+
