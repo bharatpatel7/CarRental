@@ -306,7 +306,7 @@ void date(int date){
 void free_list(struct car ** head){
     struct car *current = *head;
     //struct car *next;
-    while (*head != NULL)
+    while (current != NULL)
     {
         struct car *next = current->next;
         free(current);
