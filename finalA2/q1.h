@@ -6,7 +6,7 @@
 
 //Our Linked List Node
 struct car{
-  char plate[7];
+  char plate[8];
   int mileage;
   int return_date; //Return date should be -1 for a car with no return date
   struct car *next;

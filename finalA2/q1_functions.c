@@ -12,7 +12,7 @@ void prompt(void){
   printf("5. Rent the first available car,\n");
   printf("6. Print all the lists,\n");
   printf("7. Quit.\n");
-  //printf("Enter your choice: ");
+  printf("Enter your choice: ");
   //scanf("%d", &choice);
 }
 
@@ -26,7 +26,13 @@ void prompt(void){
  */
 struct car * insert_to_list(struct car ** head, char plate[], int mileage, int return_date){
     struct car *new_car = malloc(sizeof(struct car));
-    strcpy(new_car->plate, plate);
+    if (new_car == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed.\n");
+        return NULL;
+    }
+    strncpy(new_car->plate, plate, 7);
+    new_car->plate[7] = '\0';
     new_car->mileage = mileage;
     new_car->return_date = return_date;
     new_car->next = NULL;
@@ -99,23 +105,19 @@ bool is_plate_in_list(struct car * head, char plate[]){
  * Swaps the plate, mileage, and return date of two cars.
  */
 void swap(struct car *a, struct car *b){
-    char temp_plate[7];
-    int temp_mileage, temp_return_date;
+    int temp_mileage = a->mileage;
+    int temp_return_date = a->return_date;
+    char temp_plate[8];
+    strncpy(temp_plate, a->plate, 8);
 
-    //swap plates
-    strcpy(temp_plate, a->plate);
-    strcpy(a->plate, b->plate);
-    strcpy(b->plate, temp_plate);
-
-    //swap mileage
-    temp_mileage = a->mileage;
     a->mileage = b->mileage;
-    b->mileage = temp_mileage;
-
-    //swap return date
-    temp_return_date = a->return_date;
     a->return_date = b->return_date;
+    strncpy(a->plate, b->plate, 8);
+
+    b->mileage = temp_mileage;
     b->return_date = temp_return_date;
+    strncpy(b->plate, temp_plate, 8);
+
 }
 
 /**
@@ -129,24 +131,46 @@ void sort_list(struct car ** head, bool sort_by_mileage, bool sort_by_return_dat
         return;
     }
 
-    struct car *current, *index;
+    struct car *i, *j;
+    bool swapped;
 
-    for (current = *head; current->next != NULL; current = current->next)
-    {
-        for (index = current->next; index != NULL; index = index->next)
-        {
-            if (sort_by_mileage)
-            {
-                if (current->mileage > index->mileage)
-                {
-                    swap(current, index);
+    do{
+        swapped = false;
+        i = *head;
+
+        while (i->next != NULL){
+            j = i->next;
+            bool should_swap = false;
+
+            if (sort_by_mileage){
+                should_swap = i->mileage > j->mileage;
+            }
+            else if (sort_by_return_date){
+                if (i->return_date != -1 && j->return_date != -1){
+                    should_swap = (i -> return_date > j->return_date);
                 }
             }
+
+            if (should_swap){
+                char temp_plate[8];
+                strcpy (temp_plate, i->plate);
+                int temp_mileage = i->mileage;
+                int temp_return_date = i->return_date;
+
+                strcpy(i->plate, j->plate);
+                i->mileage = j->mileage;
+                i->return_date = j->return_date;
+
+                strcpy(j->plate, temp_plate);
+                j->mileage = temp_mileage;
+                j->return_date = temp_return_date;
+
+                swapped = true;
+            }
+            i = i->next;
         }
-    }
+    }   while (swapped);
 }
-
-
 /**
  * Removes a car from the list by its plate number.
  * @param head Pointer to the head of the list.
@@ -214,12 +238,12 @@ void write_list_to_file(char *filename, struct car *head){
         return;
     }
 
-    //struct car *current = head;
+    struct car *current = head;
 
-    while (head != NULL)
+    while (current != NULL)
     {
-        fprintf(file, "%s,%d,%d\n", head->plate, head->mileage, head->return_date);
-        head = head->next;
+        fprintf(file, "%s,%d,%d\n", current->plate, current->mileage, current->return_date);
+        current = current->next;
     }
     fclose(file);
 }
@@ -238,10 +262,10 @@ void read_file_into_list(char *filename, struct car **head){
         printf("Error opening file: %s .\n", filename);
         return;
     }
-    char plate[7];
+    char plate[8];
     int mileage, return_date;
-    while(fscanf(file, "%6s,%d,%d\n", plate, &mileage, &return_date) == 3){
-        insert_to_list(head, plate, mileage, return_date);
+    while(fscanf(file, "%7s,%d,%d\n", plate, &mileage, &return_date) == 3){
+        *head = insert_to_list(head, plate, mileage, return_date);
     }
     fclose(file);
 }
@@ -271,12 +295,14 @@ void date(int date){
  * Frees each car node in the list.
  */
 void free_list(struct car ** head){
-    struct car *temp;
+    struct car *current = *head;
+    struct car *next;
     while (*head != NULL)
     {
-        temp = *head;
-        *head = (*head)->next;
-        free(temp);
+        next = current->next;
+        free(current);
+        current = next;
     }
+    *head = NULL;
 }
 

@@ -12,7 +12,7 @@ int main(void){
 	struct car *repair_head = NULL;
 
     int choice;
-    char plate[7];
+    char plate[8];
     int mileage;
     double profit;
     struct car *temp_car;
@@ -26,8 +26,16 @@ int main(void){
     {
         prompt();
 
-        printf("Enter a Choice: ");
-        scanf("%d", &choice);
+        //printf("Enter a Choice: ");
+        if (scanf("%d", &choice) != 1)
+        {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            printf("Invalid choice. Please try again.\n");
+            continue;
+        }
+
+        getchar();
         
         /*
          * You will need to add all the cases
@@ -40,9 +48,13 @@ int main(void){
         switch (choice)
         {
         case 1:
-            
-            printf("Enter the plate number (6 characters): ");
-            scanf("%6s", plate);
+            printf("Enter the plate number (7 characters): ");
+            scanf("%7s", plate);
+            if (strlen(plate) != 7)
+            {
+                printf("Invalid plate number. Please try again.\n");
+                continue;
+            }
             printf("Enter the mileage: ");
             scanf("%d", &mileage);
             if (is_plate_in_list(available_head, plate))
@@ -58,8 +70,8 @@ int main(void){
             break;
         
         case 2:
-            printf("Enter the plat number (6 characters): ");
-            scanf("%6s", plate);
+            printf("Enter the plat number (7 characters): ");
+            scanf("%s", plate);
             printf("Enter the mileage: ");
             scanf("%d", &mileage);
             temp_car = remove_car_from_list(&rented_head, plate);
@@ -74,7 +86,7 @@ int main(void){
             break;
 
         case 3:
-            printf("Enter the plat number of returned car (6 characters): ");
+            printf("Enter the plat number of returned car (7 characters): ");
             scanf("%s", plate);
             temp_car = remove_car_from_list(&rented_head, plate);
             if (temp_car != NULL){
@@ -87,7 +99,7 @@ int main(void){
             break;
 
         case 4:
-            printf("Enter the plat number of the car to be transferred (6 characters): ");
+            printf("Enter the plat number of the car to be transferred (7 characters): ");
             scanf("%s", plate);
             temp_car = remove_car_from_list(&repair_head, plate);
             if (temp_car != NULL){
@@ -107,6 +119,7 @@ int main(void){
 
         case 6:
             //Print all the lists
+            sort_list(&available_head, true, false);
             printf("Available-for-rent list:\n");
             print_list(available_head);
             printf("Rented list:\n");
@@ -123,6 +136,9 @@ int main(void){
             free_list(&available_head);
             free_list(&rented_head);
             free_list(&repair_head);
+            available_head = NULL;
+            rented_head = NULL;
+            repair_head = NULL;
             printf("Data saved! Exiting...\n");
             exit(0);
             break;
