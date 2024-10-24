@@ -49,24 +49,31 @@ int main(void){
         {
         case 1:
             printf("Enter the plate number (7 characters): ");
-            scanf("%7s", plate);
+            if (scanf("%7s", plate) != 1)
+            {
+                printf("Invalid input. Please try again.\n");
+                continue;
+            }
             if (strlen(plate) != 7)
             {
                 printf("Invalid plate number. Please try again.\n");
                 continue;
             }
             printf("Enter the mileage: ");
-            scanf("%d", &mileage);
-            if (is_plate_in_list(available_head, plate))
+            if (scanf("%d", &mileage) != 1)
             {
-                printf("Plate number already exists in the list.\n");
+                printf("Invalid input. Please try again.\n");
+                continue;
             }
-            else
-            {
-                available_head = insert_to_list(&available_head, plate, mileage, -1);
-                printf("Car added to the available-for-rent list.\n");
-            }
-            
+            if(is_plate_in_list(available_head, plate) || 
+                is_plate_in_list(rented_head, plate) || 
+                is_plate_in_list(repair_head, plate)){
+                printf("Car with the same plate number already exists in the system.\n");
+                }else{
+                    if (insert_to_list(&available_head, plate, mileage, -1) != NULL){
+                        printf("Car added Sucsessfully!.\n");
+                    }
+                }
             break;
         
         case 2:
@@ -119,12 +126,16 @@ int main(void){
 
         case 6:
             //Print all the lists
-            sort_list(&available_head, true, false);
-            printf("Available-for-rent list:\n");
+            printf("Available for rent:\n");
+            if(available_head != NULL){
+                sort_list(&available_head, true, false);
+            }
             print_list(available_head);
-            printf("Rented list:\n");
+
+            printf("Rented:\n");
             print_list(rented_head);
-            printf("Repair list:\n");
+
+            printf("Repair:\n");
             print_list(repair_head);
             break;
 
@@ -133,12 +144,14 @@ int main(void){
             write_list_to_file("available.txt", available_head);
             write_list_to_file("rented.txt", rented_head);
             write_list_to_file("repair.txt", repair_head);
+
             free_list(&available_head);
             free_list(&rented_head);
             free_list(&repair_head);
-            available_head = NULL;
-            rented_head = NULL;
-            repair_head = NULL;
+
+            // available_head = NULL;
+            // rented_head = NULL;
+            // repair_head = NULL;
             printf("Data saved! Exiting...\n");
             exit(0);
             break;

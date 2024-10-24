@@ -53,10 +53,14 @@ void rent_first_available_car(struct car **available_head, struct car **rented_h
         return;
     }
 
-    *rented_head = insert_to_list(rented_head, car_to_rent->plate, car_to_rent->mileage, car_to_rent->return_date);
-    printf("Car rented: %s\n", car_to_rent->plate);
+    struct car *new_rented = insert_to_list(rented_head, car_to_rent->plate, car_to_rent->mileage, car_to_rent->return_date);
+    if (new_rented != NULL){
+        printf("Car rented successfully: %s\n", new_rented->plate);
+    }else{
+        printf("Error renting car\n");
+        insert_to_list(available_head, car_to_rent->plate, car_to_rent->mileage, car_to_rent->return_date);
+    }
     free(car_to_rent);
-
 
     
 }
@@ -264,10 +268,15 @@ void read_file_into_list(char *filename, struct car **head){
     }
     char plate[8];
     int mileage, return_date;
-    while(fscanf(file, "%7s,%d,%d\n", plate, &mileage, &return_date) == 3){
-        *head = insert_to_list(head, plate, mileage, return_date);
+    char line[100];
+
+    while(fgets(line, sizeof(line), file) != NULL){
+       if(sscanf(line, "%7[^,],%d,%d", plate, &mileage, &return_date) == 3){
+        insert_to_list(head, plate, mileage, return_date);
     }
-    fclose(file);
+    
+}
+fclose(file);
 }
 
 /**
@@ -296,10 +305,10 @@ void date(int date){
  */
 void free_list(struct car ** head){
     struct car *current = *head;
-    struct car *next;
+    //struct car *next;
     while (*head != NULL)
     {
-        next = current->next;
+        struct car *next = current->next;
         free(current);
         current = next;
     }
