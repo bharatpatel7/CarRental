@@ -1,6 +1,6 @@
 /*
-Name:
-Student ID: 
+Name: Bharatkumar Garsondiya
+Student ID: 1303213
 Assignment 2, Question 2
 */
 
@@ -15,11 +15,16 @@ Assignment 2, Question 2
  * @param value The value to be added to the stack.
  */
 void push(Operand **stack, double value){
+
+        //Allocate memory for the new node
         Operand *new_node = (Operand *)malloc(sizeof(Operand));
+
         if (new_node == NULL){
             printf("Memory allocation failed\n");
             exit(1);
         }
+
+        //Assign the value to the new node
         new_node->value = value;
         new_node->next = *stack;
         *stack = new_node;
@@ -34,14 +39,19 @@ void push(Operand **stack, double value){
  * @return The value that was at the top of the stack.
  */
 double pop(Operand **stack){
+
         if (*stack == NULL){
                 printf("Stack is empty\n");
                 exit(1);
         }
+
+        //Get the value of the top node
         Operand *temp = *stack;
         double value = temp->value;
         *stack = temp->next;
+
         free(temp);
+
         return value;
 
 }
@@ -53,7 +63,10 @@ double pop(Operand **stack){
  * @param stack Pointer to the stack's head.
  */
 void print(Operand *stack){
+
+        //Iterate through the stack and print the values
         Operand *current = stack;
+        
         while (current != NULL){
                 printf("%.2f ", current->value);
                 current = current->next;

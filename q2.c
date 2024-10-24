@@ -20,16 +20,20 @@ int main(int argc, char** argv){
   for (int i = 0; i < strlen(argv[1]); ++i){
     char current_cahr = argv[1][i];
 
+    //If the current character is a digit
     if (isdigit(current_cahr)){
       double num = current_cahr - '0';
       push(&stack, num);
     }
+
+    //If the current character is an operator
     else if (is_oparator(current_cahr)){
       if(stack == NULL || stack->next == NULL){
         printf("Invalid input\n");
         return 1;
       }
 
+      //Perform the operation
       double b = pop(&stack);
       double a = pop(&stack);
       double result = perform_operation(a, b, current_cahr);
@@ -55,7 +59,9 @@ int is_oparator(char c){
   return c == '+' || c == '-' || c == '*' || c == '/';
 }
 
+//Function to perform the operation
 double perform_operation(double a, double b, char oprator){
+
   switch(oprator){
     case '+':
       return a + b;
@@ -64,6 +70,7 @@ double perform_operation(double a, double b, char oprator){
     case '*':
       return a * b;
     case '/':
+    
       if (b == 0){
         printf("Invalid input\n");
         exit(1);

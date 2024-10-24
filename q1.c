@@ -47,6 +47,8 @@ int main(void){
 
         switch (choice)
         {
+
+        //Add a new car to the available-for-rent list
         case 1:
             printf("Enter the plate number (7 characters): ");
             if (scanf("%7s", plate) != 1)
@@ -76,6 +78,7 @@ int main(void){
                 }
             break;
         
+        //Add a returned car to the available-for-rent list
         case 2:
             printf("Enter the plat number (7 characters): ");
             scanf("%s", plate);
@@ -92,6 +95,7 @@ int main(void){
             }
             break;
 
+        //Add a returned car to the repair list
         case 3:
             printf("Enter the plat number of returned car (7 characters): ");
             scanf("%s", plate);
@@ -105,6 +109,7 @@ int main(void){
             }
             break;
 
+        //Transfer a car from the repair list to the available-for-rent list
         case 4:
             printf("Enter the plat number of the car to be transferred (7 characters): ");
             scanf("%s", plate);
@@ -118,12 +123,14 @@ int main(void){
             }
             break;
 
+        //Rent the first available car
         case 5:
             rent_first_available_car(&available_head, &rented_head);
             write_list_to_file("available.txt", available_head);
             write_list_to_file("rented.txt", rented_head);
             break;
 
+        //Print all the lists
         case 6:
             //Print all the lists
             printf("Available for rent:\n");
@@ -139,6 +146,7 @@ int main(void){
             print_list(repair_head);
             break;
 
+        //Quit
         case 7:
             //quit and save to file
             write_list_to_file("available.txt", available_head);
@@ -149,14 +157,11 @@ int main(void){
             free_list(&rented_head);
             free_list(&repair_head);
 
-            // available_head = NULL;
-            // rented_head = NULL;
-            // repair_head = NULL;
             printf("Data saved! Exiting...\n");
             exit(0);
             break;
 
-        
+        //Invalid choice
         default:
             printf("Invalid choice. Please try again.\n");
 
